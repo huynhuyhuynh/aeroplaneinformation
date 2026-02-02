@@ -3,110 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group 4 - Aircraft Intelligence Project</title>
+    <title>AERO ANALYZER ELITE - Group 4</title>
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/aircraft-search.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .glass-card {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;900&display=swap');
+
+        :root {
+            --primary: #3b82f6;
+            --accent: #6366f1;
+            --bg: #020617;
         }
-        .plane-img-gradient {
-            background: linear-gradient(to top, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0) 50%);
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+            min-height: 100vh;
         }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-results { animation: slideIn 0.5s ease-out forwards; }
+
+        /* --- 1. HIỆU ỨNG INTRO LOADING MẠNH MẼ --- */
+        #loader-wrapper {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 1s cubic-bezier(0.87, 0, 0.13, 1), opacity 0.8s ease;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-logo {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 15px;
+            background: linear-gradient(to right, #fff, var(--primary), #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 2s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loader-bar {
+            width: 250px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loader-progress {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+            transition: width 0.5s ease;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        /* Khi loading xong */
+        .loaded #loader-wrapper {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- 2. BACKGROUND & UI --- */
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .glass-container {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 1s ease 0.5s;
+        }
+
+        .loaded .glass-container {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .input-glow:focus {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+        }
+
+        /* Scrollbar mượt mà */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        .btn-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-hover:hover {
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        }
     </style>
 </head>
-<body class="bg-[#020617] text-slate-200 min-h-screen flex items-center justify-center p-4">
+<body class="flex items-center justify-center p-6">
 
-    <div class="max-w-2xl w-full glass-card p-8 md:p-12 rounded-[3rem] shadow-2xl">
-        <div class="text-center mb-10">
-            <div class="inline-block p-1 bg-gradient-to-tr from-blue-500 to-emerald-400 rounded-full mb-4 shadow-lg">
-                <img src="data:image/jpeg;base64,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" alt="Group 4 Logo" class="rounded-full w-20 h-20 border-2 border-white/20">
+    <div id="loader-wrapper">
+        <div class="loader-content">
+            <div class="loader-logo">AERO</div>
+            <div class="loader-bar">
+                <div id="progress" class="loader-progress"></div>
             </div>
-            <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 uppercase tracking-tighter">Group 4 Project</h1>
-            <p class="text-slate-500 text-[10px] mt-2 uppercase tracking-[0.4em] font-bold">Aircraft Intelligence System</p>
+            <p class="text-blue-500 text-[10px] tracking-[0.3em] mt-4 uppercase font-bold">Initializing System...</p>
+        </div>
+    </div>
+
+    <canvas id="bgCanvas"></canvas>
+
+    <div class="max-w-2xl w-full glass-container p-10 md:p-14 rounded-[3rem] my-10">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 text-white">
+                AERO<span class="text-blue-500">ANALYZER</span>
+            </h1>
+            <div class="h-[2px] w-12 bg-blue-600 mx-auto mb-4"></div>
+            <p class="text-slate-500 text-[10px] uppercase tracking-[0.6em]">Intelligence Aerospace Platform</p>
         </div>
 
-        <div class="space-y-4">
-            <input type="text" id="plane" placeholder="Nhập tên máy bay (VD: Boeing 787, A350...)" 
-                class="w-full p-5 rounded-2xl bg-slate-900/80 border border-slate-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-white text-lg">
+        <div class="space-y-6">
+            <input type="text" id="plane" placeholder="Nhập tên máy bay (VD: F-35, Boeing 747...)" 
+                class="w-full p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-white text-xl outline-none transition-all input-glow placeholder:text-slate-700">
             
-            <button onclick="analyzeWithGroq()" id="btn" 
-                class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black text-lg transition-all shadow-xl shadow-blue-900/40 uppercase tracking-widest active:scale-95">
-                Bắt đầu phân tích
+            <button onclick="analyzeWithWorker()" id="btn" 
+                class="w-full bg-blue-600 hover:bg-blue-500 text-white py-6 rounded-2xl font-bold text-lg uppercase tracking-widest btn-hover flex items-center justify-center gap-3">
+                <span id="btnText">PHÂN TÍCH HỆ THỐNG</span>
             </button>
         </div>
 
-        <div id="resultContainer" class="mt-10 hidden animate-results">
-            <div class="relative overflow-hidden rounded-[2rem] mb-6 shadow-2xl border border-white/5 aspect-video bg-slate-800">
-                <img id="planeImg" src="" alt="Aircraft" class="w-full h-full object-cover transition-opacity duration-1000 opacity-0" onload="this.style.opacity='1'">
-                <div class="absolute inset-0 plane-img-gradient"></div>
-                <div class="absolute bottom-0 left-0 p-6">
-                    <p id="imgCaption" class="text-xs font-bold text-blue-400 uppercase tracking-[0.2em]"></p>
-                </div>
+        <div id="resultContainer" class="mt-12 hidden">
+            <div class="bg-slate-950/80 rounded-3xl p-8 border border-white/5 shadow-inner">
+                <div id="result" class="prose prose-invert max-w-none text-slate-300 leading-relaxed space-y-4">
+                    </div>
             </div>
-
-            <div id="result" class="p-8 bg-slate-900/50 rounded-[2rem] leading-relaxed text-slate-300 border-l-4 border-blue-500 text-base">
-                </div>
         </div>
     </div>
 
     <script>
-        async function analyzeWithGroq() {
-            const aircraft = document.getElementById('plane').value;
+        // --- LOGIC LOADING ---
+        let progress = 0;
+        const progressEl = document.getElementById('progress');
+        const interval = setInterval(() => {
+            progress += Math.random() * 30;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                setTimeout(() => {
+                    document.body.classList.add('loaded');
+                }, 500);
+            }
+            progressEl.style.width = progress + '%';
+        }, 200);
+
+        // --- CANVAS BACKGROUND ---
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: -100, y: -100, radius: 150 };
+
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.size = Math.random() * 2;
+                this.density = (Math.random() * 30) + 1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                if (distance < mouse.radius) {
+                    let force = (mouse.radius - distance) / mouse.radius;
+                    this.x -= (dx / distance) * force * this.density;
+                    this.y -= (dy / distance) * force * this.density;
+                } else {
+                    this.x += (this.baseX - this.x) * 0.1;
+                    this.y += (this.baseY - this.y) * 0.1;
+                }
+            }
+        }
+
+        function initParticles() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 120; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.draw(); p.update(); });
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+
+        // --- BACKEND CALL ---
+        async function analyzeWithWorker() {
+            const aircraft = document.getElementById('plane').value.trim();
             const resContainer = document.getElementById('resultContainer');
             const resDiv = document.getElementById('result');
-            const planeImg = document.getElementById('planeImg');
-            const imgCaption = document.getElementById('imgCaption');
-            const btn = document.getElementById('btn');
-
-            // --- QUAN TRỌNG: DÁN API KEY GROK GSK_... CỦA BẠN VÀO ĐÂY ---
-            const GROQ_API_KEY = "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";
+            const btnText = document.getElementById('btnText');
+            const WORKER_URL = "https://frosty-term-2a87.wococel588.workers.dev/";
 
             if(!aircraft) return alert("Vui lòng nhập tên máy bay!");
             
-            btn.innerText = "⏳ ĐANG XỬ LÝ..."; btn.disabled = true;
-            resContainer.classList.add('hidden');
-
+            btnText.innerText = "PROCESSING...";
             try {
-                // 1. CẬP NHẬT ẢNH ĐỘNG (SỬA LỖI ẢNH CỐ ĐỊNH)
-                // Sử dụng tham số tìm kiếm ngẫu nhiên kết hợp với tên máy bay để Unsplash trả về ảnh mới
-                const randomSeed = Math.floor(Math.random() * 1000);
-                planeImg.src = `https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&q=80&w=1000&sig=${randomSeed}&q=${encodeURIComponent(aircraft + " plane")}`;
-                imgCaption.innerText = `DATABASE MATCH: ${aircraft.toUpperCase()}`;
-
-                // 2. GỌI API GROQ
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const response = await fetch(WORKER_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${GROQ_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [
-                            { role: "system", content: "Bạn là chuyên gia phân tích máy bay của Group 4. Hãy cung cấp: 1. Thông số kỹ thuật. 2. Giá tiền ước tính (USD). 3. Đánh giá ưu nhược điểm. Trình bày ngắn gọn bằng tiếng Việt." },
-                            { role: "user", content: "Phân tích máy bay: " + aircraft }
-                        ]
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aircraft: aircraft })
                 });
-
                 const data = await response.json();
-
-                if (data.error) {
-                    resDiv.innerHTML = `<span class="text-red-400">Lỗi: ${data.error.message}</span>`;
-                } else {
+                
+                if (data.choices) {
                     const content = data.choices[0].message.content;
-                    resDiv.innerHTML = content.replace(/\n/g, '<br>');
+                    resDiv.innerHTML = content.replace(/\n/g, '<br>').replace(/(Vận tốc:|Tầm bay:|Động cơ:|Trần bay:)/gi, '<b class="text-blue-400">$1</b>');
                     resContainer.classList.remove('hidden');
+                    // Không dùng scrollLock, cuộn mượt xuống kết quả
+                    resContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             } catch (e) {
-                alert("Lỗi hệ thống: " + e.message);
+                resDiv.innerText = "Lỗi kết nối hệ thống.";
+                resContainer.classList.remove('hidden');
             } finally {
-                btn.innerText = "Bắt đầu phân tích"; btn.disabled = false;
+                btnText.innerText = "PHÂN TÍCH HỆ THỐNG";
             }
         }
     </script>
