@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AERO ANALYZER ELITE - Group 4</title>
-    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/aircraft-search.png">
+    <link rel="icon" type="image/png" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;900&display=swap');
 
         :root {
             --primary: #3b82f6;
-            --accent: #6366f1;
-            --bg: #020617;
+            --bg: #01040a;
         }
 
         body {
@@ -33,153 +32,145 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: transform 1s cubic-bezier(0.87, 0, 0.13, 1), opacity 0.8s ease;
+            transition: all 1s cubic-bezier(0.87, 0, 0.13, 1);
         }
 
-        .loader-content {
-            text-align: center;
-        }
-
-        .loader-logo {
+        .loader-logo-big {
             font-family: 'Syncopate', sans-serif;
-            font-size: 2.5rem;
+            font-size: 4rem;
             font-weight: 700;
-            letter-spacing: 15px;
-            background: linear-gradient(to right, #fff, var(--primary), #fff);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 2s linear infinite;
-            margin-bottom: 20px;
+            letter-spacing: 20px;
+            color: white;
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+            animation: pulse 2s infinite;
         }
 
-        .loader-bar {
-            width: 250px;
-            height: 2px;
-            background: rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
         }
 
-        .loader-progress {
-            position: absolute;
-            height: 100%;
-            width: 0%;
-            background: var(--primary);
-            box-shadow: 0 0 15px var(--primary);
-            transition: width 0.5s ease;
-        }
-
-        @keyframes shine {
-            to { background-position: 200% center; }
-        }
-
-        /* Khi loading xong */
         .loaded #loader-wrapper {
-            transform: translateY(-100%);
+            transform: scale(1.5);
             opacity: 0;
             pointer-events: none;
         }
 
-        /* --- 2. BACKGROUND & UI --- */
-        #bgCanvas {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            opacity: 0.6;
+        /* --- 2. BACKGROUND & CANVAS --- */
+        #bgCanvas { position: fixed; inset: 0; z-index: -1; opacity: 0.5; }
+
+        /* --- 3. LOGO CHÍNH CỦA TRANG (PHONG CÁCH YOUTUBE) --- */
+        .brand-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 3rem;
         }
 
+        .brand-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary), #1d4ed8);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.4);
+            margin-bottom: 1.5rem;
+            transition: all 0.5s ease;
+        }
+
+        .brand-icon:hover {
+            transform: rotate(10deg) scale(1.1);
+            box-shadow: 0 0 70px rgba(59, 130, 246, 0.6);
+        }
+
+        .brand-name {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* --- 4. GIAO DIỆN CHÍNH --- */
         .glass-container {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
             opacity: 0;
-            transform: scale(0.95);
-            transition: all 1s ease 0.5s;
+            transform: translateY(30px);
+            transition: all 1s ease 0.6s;
         }
 
-        .loaded .glass-container {
-            opacity: 1;
-            transform: scale(1);
+        .loaded .glass-container { opacity: 1; transform: translateY(0); }
+
+        .btn-action {
+            background: linear-gradient(to right, #2563eb, #3b82f6);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .input-glow:focus {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-            border-color: var(--primary);
-        }
-
-        /* Scrollbar mượt mà */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
-        .btn-hover {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .btn-hover:hover {
-            letter-spacing: 2px;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        .btn-action:hover {
+            filter: brightness(1.2);
+            letter-spacing: 3px;
+            transform: scale(1.02);
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-6">
+<body class="flex flex-col items-center justify-center p-6">
 
     <div id="loader-wrapper">
-        <div class="loader-content">
-            <div class="loader-logo">AERO</div>
-            <div class="loader-bar">
-                <div id="progress" class="loader-progress"></div>
-            </div>
-            <p class="text-blue-500 text-[10px] tracking-[0.3em] mt-4 uppercase font-bold">Initializing System...</p>
+        <div class="loader-logo-big">AERO</div>
+        <div class="mt-8 flex gap-2">
+            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.5s]"></div>
         </div>
     </div>
 
     <canvas id="bgCanvas"></canvas>
 
-    <div class="max-w-2xl w-full glass-container p-10 md:p-14 rounded-[3rem] my-10">
-        <div class="text-center mb-12">
-            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 text-white">
-                AERO<span class="text-blue-500">ANALYZER</span>
-            </h1>
-            <div class="h-[2px] w-12 bg-blue-600 mx-auto mb-4"></div>
-            <p class="text-slate-500 text-[10px] uppercase tracking-[0.6em]">Intelligence Aerospace Platform</p>
+    <div class="max-w-2xl w-full glass-container p-10 md:p-14 rounded-[4rem]">
+        
+        <div class="brand-container">
+            <div class="brand-icon">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.7 5.2c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"></path>
+                </svg>
+            </div>
+            <h2 class="brand-name">
+                AERO<br><span class="text-blue-500">ANALYZER</span>
+            </h2>
+            <p class="text-slate-500 text-[9px] uppercase tracking-[0.6em] mt-4 font-bold">Group 4 High-End Intelligence</p>
         </div>
 
         <div class="space-y-6">
-            <input type="text" id="plane" placeholder="Nhập tên máy bay (VD: F-35, Boeing 747...)" 
-                class="w-full p-6 rounded-2xl bg-slate-900/50 border border-slate-800 text-white text-xl outline-none transition-all input-glow placeholder:text-slate-700">
+            <input type="text" id="plane" placeholder="Nhập tên máy bay..." 
+                class="w-full p-6 rounded-3xl bg-slate-900/80 border border-slate-800 text-white text-xl outline-none focus:border-blue-500 transition-all placeholder:text-slate-700">
             
             <button onclick="analyzeWithWorker()" id="btn" 
-                class="w-full bg-blue-600 hover:bg-blue-500 text-white py-6 rounded-2xl font-bold text-lg uppercase tracking-widest btn-hover flex items-center justify-center gap-3">
-                <span id="btnText">PHÂN TÍCH HỆ THỐNG</span>
+                class="w-full text-white py-6 rounded-3xl font-black text-lg uppercase tracking-widest btn-action flex items-center justify-center gap-3">
+                <span id="btnText">EXECUTE ANALYSIS</span>
             </button>
         </div>
 
         <div id="resultContainer" class="mt-12 hidden">
-            <div class="bg-slate-950/80 rounded-3xl p-8 border border-white/5 shadow-inner">
-                <div id="result" class="prose prose-invert max-w-none text-slate-300 leading-relaxed space-y-4">
+            <div class="bg-black/40 rounded-[2.5rem] p-8 border border-white/5">
+                <div id="result" class="text-slate-300 leading-relaxed text-lg italic">
                     </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- LOGIC LOADING ---
-        let progress = 0;
-        const progressEl = document.getElementById('progress');
-        const interval = setInterval(() => {
-            progress += Math.random() * 30;
-            if (progress >= 100) {
-                progress = 100;
-                clearInterval(interval);
-                setTimeout(() => {
-                    document.body.classList.add('loaded');
-                }, 500);
-            }
-            progressEl.style.width = progress + '%';
-        }, 200);
+        // --- LOADING LOGIC ---
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 2000); // Intro 2 giây cho hoành tráng
+        });
 
         // --- CANVAS BACKGROUND ---
         const canvas = document.getElementById('bgCanvas');
@@ -188,59 +179,49 @@
         const mouse = { x: -100, y: -100, radius: 150 };
 
         window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            initParticles();
-        });
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.baseX = this.x;
-                this.baseY = this.y;
-                this.size = Math.random() * 2;
-                this.density = (Math.random() * 30) + 1;
-            }
-            draw() {
-                ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            update() {
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx*dx + dy*dy);
-                if (distance < mouse.radius) {
-                    let force = (mouse.radius - distance) / mouse.radius;
-                    this.x -= (dx / distance) * force * this.density;
-                    this.y -= (dy / distance) * force * this.density;
-                } else {
-                    this.x += (this.baseX - this.x) * 0.1;
-                    this.y += (this.baseY - this.y) * 0.1;
-                }
-            }
-        }
-
-        function initParticles() {
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             particles = [];
-            for (let i = 0; i < 120; i++) particles.push(new Particle());
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    bx: 0, by: 0,
+                    size: Math.random() * 2,
+                    density: (Math.random() * 20) + 1
+                });
+                particles[i].bx = particles[i].x;
+                particles[i].by = particles[i].y;
+            }
         }
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.draw(); p.update(); });
+            particles.forEach(p => {
+                let dx = mouse.x - p.x;
+                let dy = mouse.y - p.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < mouse.radius) {
+                    let force = (mouse.radius - dist) / mouse.radius;
+                    p.x -= (dx/dist) * force * p.density;
+                    p.y -= (dy/dist) * force * p.density;
+                } else {
+                    p.x += (p.bx - p.x) * 0.1;
+                    p.y += (p.by - p.y) * 0.1;
+                }
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fill();
+            });
             requestAnimationFrame(animate);
         }
 
-        initParticles();
-        animate();
+        window.addEventListener('resize', resize);
+        resize(); animate();
 
-        // --- BACKEND CALL ---
+        // --- API CALL ---
         async function analyzeWithWorker() {
             const aircraft = document.getElementById('plane').value.trim();
             const resContainer = document.getElementById('resultContainer');
@@ -248,9 +229,9 @@
             const btnText = document.getElementById('btnText');
             const WORKER_URL = "https://frosty-term-2a87.wococel588.workers.dev/";
 
-            if(!aircraft) return alert("Vui lòng nhập tên máy bay!");
+            if(!aircraft) return;
+            btnText.innerText = "SEARCHING DATABASE...";
             
-            btnText.innerText = "PROCESSING...";
             try {
                 const response = await fetch(WORKER_URL, {
                     method: 'POST',
@@ -258,19 +239,14 @@
                     body: JSON.stringify({ aircraft: aircraft })
                 });
                 const data = await response.json();
-                
-                if (data.choices) {
-                    const content = data.choices[0].message.content;
-                    resDiv.innerHTML = content.replace(/\n/g, '<br>').replace(/(Vận tốc:|Tầm bay:|Động cơ:|Trần bay:)/gi, '<b class="text-blue-400">$1</b>');
-                    resContainer.classList.remove('hidden');
-                    // Không dùng scrollLock, cuộn mượt xuống kết quả
-                    resContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
+                resDiv.innerHTML = data.choices[0].message.content.replace(/\n/g, '<br>');
+                resContainer.classList.remove('hidden');
+                resContainer.scrollIntoView({ behavior: 'smooth' });
             } catch (e) {
-                resDiv.innerText = "Lỗi kết nối hệ thống.";
+                resDiv.innerText = "Hệ thống đang bận, thử lại sau.";
                 resContainer.classList.remove('hidden');
             } finally {
-                btnText.innerText = "PHÂN TÍCH HỆ THỐNG";
+                btnText.innerText = "EXECUTE ANALYSIS";
             }
         }
     </script>
